@@ -1,3 +1,4 @@
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 public class TestRunner {
@@ -45,7 +46,7 @@ public class TestRunner {
 
     private static Method getMethodAnnotatedWith(Class<?> testClass, Class<?> annotation) {
         for (Method method : testClass.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(annotation)) {
+            if (method.isAnnotationPresent((Class<? extends Annotation>) annotation)) {
                 return method;
             }
         }
