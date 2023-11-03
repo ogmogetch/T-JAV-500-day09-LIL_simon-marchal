@@ -1,55 +1,98 @@
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 public class TestRunner {
-    public static void runTests(Class<?> testClass) {
+
+    public void runTests(Class<?> testClass) {
+        Object testObject;
         try {
-            Object testObject = testClass.getDeclaredConstructor().newInstance();
-
-            Method beforeClassMethod = getMethodAnnotatedWith(testClass, BeforeClass.class);
-            if (beforeClassMethod != null) {
-                beforeClassMethod.invoke(testObject);
-            }
-
-            for (Method method : testClass.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Test.class) && method.getAnnotation(Test.class).enabled()) {
-                    executeTestWithAnnotations(testObject, method);
-                }
-            }
-
-            Method afterClassMethod = getMethodAnnotatedWith(testClass, AfterClass.class);
-            if (afterClassMethod != null) {
-                afterClassMethod.invoke(testObject);
-            }
+            testObject = testClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    private static void executeTestWithAnnotations(Object testObject, Method method) throws Exception {
-        Method beforeMethod = getMethodAnnotatedWith(method.getDeclaringClass(), Before.class);
-        if (beforeMethod != null) {
-            beforeMethod.invoke(testObject);
+            return;
         }
 
-        try {
-            method.invoke(testObject);
-        } catch (Exception e) {
-            System.out.println("Test failed: " + e.getCause());
-        }
+        // Execute @BeforeClass method if exists
+        executeBeforeClass(testClass, testObject);
 
-        Method afterMethod = getMethodAnnotatedWith(method.getDeclaringClass(), After.class);
-        if (afterMethod != null) {
-            afterMethod.invoke(testObject);
-        }
-    }
+        Method[] methods = testClass.getDeclaredMethods();
 
-    private static Method getMethodAnnotatedWith(Class<?> testClass, Class<?> annotation) {
-        for (Method method : testClass.getDeclaredMethods()) {
-            if (method.isAnnotationPresent((Class<? extends Annotation>) annotation)) {
-                return method;
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(Test.class)) {
+                Test test = method.getAnnotation(Test.class);
+                if (test.enabled()) {
+                    // Execute @Before method before each test
+                    executeBefore(testClass, testObject);
+
+                    System.out.println(test.name());
+                    try {
+                        method.invoke(testObject);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    // Execute @After method after each test
+                    executeAfter(testClass, testObject);
+                }
             }
         }
-        return null;
+
+        // Execute @AfterClass method if exists
+        executeAfterClass(testClass, testObject);
+    }
+
+    private void executeBeforeClass(Class<?> testClass, Object testObject) {
+        Method[] methods = testClass.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(BeforeClass.class)) {
+                try {
+                    method.invoke(testObject);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+        }
+    }
+
+    private void executeAfterClass(Class<?> testClass, Object testObject) {
+        Method[] methods = testClass.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(AfterClass.class)) {
+                try {
+                    method.invoke(testObject);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+        }
+    }
+
+    private void executeBefore(Class<?> testClass, Object testObject) {
+        Method[] methods = testClass.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(Before.class)) {
+                try {
+                    method.invoke(testObject);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+        }
+    }
+
+    private void executeAfter(Class<?> testClass, Object testObject) {
+        Method[] methods = testClass.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(After.class)) {
+                try {
+                    method.invoke(testObject);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+        }
     }
 }
