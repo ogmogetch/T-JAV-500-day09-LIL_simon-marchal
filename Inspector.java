@@ -25,9 +25,7 @@ public class Inspector<T> {
 
         System.out.println(declaredFields.length + " fields:");
         for (Field field : declaredFields) {
-            if (Modifier.isPrivate(field.getModifiers())) {
-                System.out.println("- " + field.getName());
-            }
+            System.out.println("- " + field.getName());
         }
     }
 
@@ -35,16 +33,16 @@ public class Inspector<T> {
         try {
             return inspectedClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            throw e; // Rethrowing the exception
+            throw e;
         }
     }
 
     public static void main(String[] args) {
-        Inspector<Number> inspector = new Inspector<>(Number.class);
+        Inspector<String> inspector = new Inspector<>(String.class);
         inspector.displayInformations();
 
         try {
-            Number instance = inspector.createInstance();
+            String instance = inspector.createInstance();
             System.out.println("New instance created: " + instance);
         } catch (Exception e) {
             System.out.println("Exception occurred: " + e.getMessage());
