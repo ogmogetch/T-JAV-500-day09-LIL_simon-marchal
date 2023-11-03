@@ -40,12 +40,5 @@ public class Inspector<T> {
     public static void main(String[] args) {
         Inspector<String> inspector = new Inspector<>(String.class);
         inspector.displayInformations();
-
-        try {
-            String instance = inspector.createInstance();
-            System.out.println("New instance created: " + instance);
-        } catch (Exception e) {
-            System.out.println("Exception occurred: " + e.getMessage());
-        }
     }
 }
